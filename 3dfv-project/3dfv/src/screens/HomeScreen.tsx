@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Alert,
   Image,
   Pressable,
   SafeAreaView,
@@ -13,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Category, CartItem, MenuItem } from '../types';
 import { formatRs } from '../utils/format';
 import { styles } from '../styles/styles';
+import WeatherCard from '../components/WeatherCard';
 
 
 
@@ -41,6 +41,7 @@ export default function HomeScreen({
   onSignOut,
   onCartPress,
   onOpenItemDetail,
+  onOpenArLanding,
   onOpenCustomizer,
   onOpenChat,
 }: {
@@ -58,6 +59,7 @@ export default function HomeScreen({
   onSignOut: () => void;
   onCartPress: () => void;
   onOpenItemDetail: (item: MenuItem) => void;
+  onOpenArLanding: (item: MenuItem) => void;
   onOpenCustomizer: (item: MenuItem) => void;
   onOpenChat: () => void;
 }) {
@@ -72,9 +74,7 @@ export default function HomeScreen({
             <Text style={styles.locationTitle}>3D Food Visualisation</Text>
           </View>
 
-          <View style={styles.weatherPill}>
-            <Text style={styles.weatherText}>Fast Food Menu</Text>
-          </View>
+          <WeatherCard />
         </View>
 
         <View style={styles.greetingRow}>
@@ -199,10 +199,7 @@ export default function HomeScreen({
                 style={styles.visualizeBtn}
                 onPress={(event) => {
                   event.stopPropagation();
-                  Alert.alert(
-                    '3D Food Visualisation',
-                    `Add your 3D/AR model for ${item.name} here.`
-                  );
+                  onOpenArLanding(item);
                 }}
               >
                 <Text style={styles.visualizeText}>Visualize</Text>

@@ -11,11 +11,13 @@ export default function ItemDetailScreen({
   onBack,
   onAddToCart,
   onCustomize,
+  onOpenAr,
 }: {
   item: MenuItem;
   onBack: () => void;
   onAddToCart: (item: MenuItem, extras?: Partial<CartItem>) => void;
   onCustomize: (item: MenuItem) => void;
+  onOpenAr: (item: MenuItem) => void;
 }) {
   return (
     <SafeAreaView style={styles.screen}>
@@ -56,6 +58,21 @@ export default function ItemDetailScreen({
         <Text style={styles.detailBodyText}>
           {item.description || 'No description is available for this item yet.'}
         </Text>
+
+        <Pressable style={styles.arPreviewCard} onPress={() => onOpenAr(item)}>
+          <View style={styles.arPreviewIcon}>
+            <Ionicons name="cube-outline" size={24} color="#35C989" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.arPreviewTitle}>Open AR / 3D view</Text>
+            <Text style={styles.arPreviewText}>
+              {item.model_3d_url
+                ? 'View the linked model or open the public QR viewing flow.'
+                : '3D model not available yet, but the preview page is ready.'}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#A3A0A5" />
+        </Pressable>
 
         <Text style={styles.sectionTitle}>Customization</Text>
         <Text style={styles.detailBodyText}>

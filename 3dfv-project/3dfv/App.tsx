@@ -26,6 +26,8 @@ import AuthScreen from './src/screens/AuthScreen';
 import AdminScreen from './src/screens/AdminScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ItemDetailScreen from './src/screens/ItemDetailScreen';
+import ARLandingScreen from './src/screens/ARLandingScreen';
+import QRScanScreen from './src/screens/QRScanScreen';
 import CartScreen from './src/screens/CartScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
 import CardPaymentScreen from './src/screens/CardPaymentScreen';
@@ -211,7 +213,7 @@ export default function App() {
 
   // ── Fetch menu whenever user lands on home screen ─────────────────────────
   useEffect(() => {
-    if (flow === 'home' || flow === 'admin' || flow === 'itemDetail') {
+    if (flow === 'home' || flow === 'admin' || flow === 'itemDetail' || flow === 'arLanding' || flow === 'qrScan') {
       fetchMenu();
     }
   }, [flow]);
@@ -395,6 +397,12 @@ export default function App() {
       setFlow('itemDetail');
       setSelectedItem(item);
     });
+  };
+
+  const openArLanding = (item: MenuItem) => {
+    setDetailItem(item);
+    setSelectedItem(null);
+    setFlow('arLanding');
   };
 
   const openCart = () => {
@@ -609,6 +617,7 @@ export default function App() {
             });
           }}
           onCustomize={openCustomizer}
+          onOpenAr={openArLanding}
         />
 
         <CustomizerModal
@@ -619,6 +628,30 @@ export default function App() {
           }}
         />
       </>
+    );
+  }
+
+  if (flow === 'arLanding' && detailItem) {
+    return (
+      <ARLandingScreen
+        item={detailItem}
+        onBack={() => setFlow('itemDetail')}
+        onScanQr={() => setFlow('qrScan')}
+      />
+    );
+  }
+
+  if (flow === 'qrScan') {
+    return (
+      <QRScanScreen
+        menuItems={menuItems}
+        onBack={() => setFlow(detailItem ? 'arLanding' : 'home')}
+        onOpenItem={(item) => {
+          setDetailItem(item);
+          setFlow('itemDetail');
+        }}
+        onOpenAr={openArLanding}
+      />
     );
   }
 
@@ -694,6 +727,7 @@ export default function App() {
           setDetailItem(item);
           setFlow('itemDetail');
         }}
+        onOpenArLanding={openArLanding}
         onOpenCustomizer={openCustomizer}
         onOpenChat={() => setChatOpen(true)}
       />

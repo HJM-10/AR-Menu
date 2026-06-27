@@ -6,6 +6,8 @@ export type Flow =
   | 'admin'
   | 'home'
   | 'itemDetail'
+  | 'arLanding'
+  | 'qrScan'
   | 'cart'
   | 'checkout'
   | 'cardPayment'

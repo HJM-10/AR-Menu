@@ -509,6 +509,58 @@ nextButtonText: {
     fontSize: 12,
   },
 
+  weatherCard: {
+    minWidth: 150,
+    maxWidth: 190,
+    minHeight: 58,
+    backgroundColor: '#FFF0DC',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+  },
+
+  weatherEmoji: {
+    fontSize: 25,
+    width: 31,
+    textAlign: 'center',
+  },
+
+  weatherFallbackIcon: {
+    width: 31,
+    height: 31,
+    borderRadius: 16,
+    backgroundColor: '#FFE2B8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  weatherInfo: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  weatherTemp: {
+    color: '#26232A',
+    fontSize: 17,
+    fontWeight: '900',
+  },
+
+  weatherCondition: {
+    color: '#A86B24',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+
+  weatherCity: {
+    color: '#7C7780',
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 1,
+  },
+
   greetingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -832,6 +884,144 @@ nextButtonText: {
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 18,
+  },
+
+  arPreviewCard: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 14,
+    marginTop: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+
+  arPreviewIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 15,
+    backgroundColor: '#E7F8EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  arPreviewTitle: {
+    color: '#26232A',
+    fontWeight: '900',
+    fontSize: 15,
+  },
+
+  arPreviewText: {
+    color: '#777',
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 3,
+  },
+
+  arBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FFF0DC',
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+
+  arBadgeText: {
+    color: '#A86B24',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+
+  arStatusCard: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 16,
+    marginTop: 18,
+  },
+
+  arStatusRow: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+
+  arStatusTitle: {
+    color: '#26232A',
+    fontWeight: '900',
+    fontSize: 15,
+  },
+
+  arStatusText: {
+    color: '#777',
+    fontSize: 13,
+    lineHeight: 19,
+    marginTop: 4,
+  },
+
+  arActionGrid: {
+    gap: 10,
+    marginTop: 16,
+  },
+
+  arActionBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+
+  arActionBtnDisabled: {
+    opacity: 0.65,
+  },
+
+  arActionText: {
+    color: '#26232A',
+    fontWeight: '900',
+    fontSize: 15,
+  },
+
+  qrPlaceholder: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 24,
+    marginTop: 16,
+    alignItems: 'center',
+  },
+
+  qrTitle: {
+    color: '#26232A',
+    fontWeight: '900',
+    fontSize: 19,
+    marginTop: 12,
+  },
+
+  qrText: {
+    color: '#777',
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+
+  qrErrorBox: {
+    backgroundColor: '#FFF1F1',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  qrErrorText: {
+    color: '#B91C1C',
+    fontWeight: '800',
+    flex: 1,
   },
 
   modalBackdrop: {
