@@ -17,8 +17,10 @@ export default function AuthScreen({
   isAdmin,
   loading,
   errorMessage,
+  promptMessage,
   onContinue,
   onGoogleContinue,
+  onCancel,
   googleLoading,
   googleDisabled,
 }: {
@@ -35,8 +37,10 @@ export default function AuthScreen({
   isAdmin: boolean;
   loading?: boolean;
   errorMessage?: string;
+  promptMessage?: string;
   onContinue: () => void;
   onGoogleContinue: () => void;
+  onCancel?: () => void;
   googleLoading?: boolean;
   googleDisabled?: boolean;
 }) {
@@ -45,7 +49,9 @@ export default function AuthScreen({
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.authWrap}>
           <Text style={styles.bigTitle}>{authTab === 'login' ? 'Welcome Back' : 'Create Account'}</Text>
-          <Text style={styles.mutedText}>Login to start ordering.</Text>
+          <Text style={styles.mutedText}>
+            {promptMessage || 'Login to start ordering.'}
+          </Text>
           
           {!!errorMessage && (
             <View style={{ backgroundColor: '#FEE2E2', padding: 12, borderRadius: 8, marginTop: 10 }}>
@@ -90,6 +96,11 @@ export default function AuthScreen({
               <Text style={styles.primaryBtnText}>{isAdmin ? 'Continue as Admin' : 'Continue'}</Text>
             )}
           </Pressable>
+          {!!onCancel && (
+            <Pressable style={styles.secondaryBtn} onPress={onCancel}>
+              <Text style={styles.secondaryBtnText}>Continue browsing</Text>
+            </Pressable>
+          )}
           {isAdmin && <Text style={styles.adminHint}>Admin access detected for this email.</Text>}
         </ScrollView>
       </KeyboardAvoidingView>

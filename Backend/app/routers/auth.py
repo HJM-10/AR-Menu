@@ -1,8 +1,6 @@
 import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from google.auth.transport import requests as google_requests
-from google.oauth2 import id_token as google_id_token
 from sqlalchemy.orm import Session, joinedload
 
 from app.auth.dependencies import get_current_active_user
@@ -68,6 +66,9 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> dict:
 
 @router.post("/google")
 def google_login(payload: GoogleLoginRequest, db: Session = Depends(get_db)) -> dict:
+    from google.auth.transport import requests as google_requests
+    from google.oauth2 import id_token as google_id_token
+
     settings = get_settings()
     allowed_client_ids = settings.google_oauth_client_ids
     if not allowed_client_ids:

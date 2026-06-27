@@ -36,8 +36,11 @@ export default function HomeScreen({
   filteredMenu,
   cart,
   isAdmin,
+  isGuest,
   onProfilePress,
+  onSignOut,
   onCartPress,
+  onOpenItemDetail,
   onOpenCustomizer,
   onOpenChat,
 }: {
@@ -50,8 +53,11 @@ export default function HomeScreen({
   filteredMenu: MenuItem[];
   cart: CartItem[];
   isAdmin: boolean;
+  isGuest: boolean;
   onProfilePress: () => void;
+  onSignOut: () => void;
   onCartPress: () => void;
+  onOpenItemDetail: (item: MenuItem) => void;
   onOpenCustomizer: (item: MenuItem) => void;
   onOpenChat: () => void;
 }) {
@@ -79,11 +85,22 @@ export default function HomeScreen({
             </Text>
           </View>
 
-          <Pressable style={styles.avatar} onPress={onProfilePress}>
-            <Text style={styles.avatarText}>
-              {(name[0] || 'U').toUpperCase()}
-            </Text>
-          </Pressable>
+          {isGuest ? (
+            <Pressable style={styles.signInPill} onPress={onProfilePress}>
+              <Text style={styles.signInText}>Sign In</Text>
+            </Pressable>
+          ) : (
+            <View style={styles.profileActions}>
+              <Pressable style={styles.avatar} onPress={onProfilePress}>
+                <Text style={styles.avatarText}>
+                  {(name[0] || 'U').toUpperCase()}
+                </Text>
+              </Pressable>
+              <Pressable onPress={onSignOut}>
+                <Text style={styles.signOutText}>Sign Out</Text>
+              </Pressable>
+            </View>
+          )}
         </View>
 
         <View style={styles.searchBox}>
@@ -151,7 +168,11 @@ export default function HomeScreen({
         </View>
 
         {filteredMenu.map((item) => (
-          <View key={item.id} style={styles.foodCard}>
+          <Pressable
+            key={item.id}
+            style={styles.foodCard}
+            onPress={() => onOpenItemDetail(item)}
+          >
             <Image source={{ uri: item.image }} style={styles.foodImage} />
 
             <View style={styles.foodContent}>
@@ -176,24 +197,28 @@ export default function HomeScreen({
 
               <Pressable
                 style={styles.visualizeBtn}
-                onPress={() =>
+                onPress={(event) => {
+                  event.stopPropagation();
                   Alert.alert(
                     '3D Food Visualisation',
                     `Add your 3D/AR model for ${item.name} here.`
-                  )
-                }
+                  );
+                }}
               >
                 <Text style={styles.visualizeText}>Visualize</Text>
               </Pressable>
 
               <Pressable
                 style={styles.addBtn}
-                onPress={() => onOpenCustomizer(item)}
+                onPress={(event) => {
+                  event.stopPropagation();
+                  onOpenCustomizer(item);
+                }}
               >
                 <Ionicons name="add" size={20} color="#35C989" />
               </Pressable>
             </View>
-          </View>
+          </Pressable>
         ))}
       </ScrollView>
 

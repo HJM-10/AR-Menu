@@ -12,7 +12,7 @@
  *
  * UI is preserved exactly as before — only data sources and event handlers changed.
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, View } from 'react-native';
 import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
@@ -25,6 +25,7 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import AuthScreen from './src/screens/AuthScreen';
 import AdminScreen from './src/screens/AdminScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import ItemDetailScreen from './src/screens/ItemDetailScreen';
 import CartScreen from './src/screens/CartScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
 import CardPaymentScreen from './src/screens/CardPaymentScreen';
@@ -38,12 +39,13 @@ import {
   login as apiLogin,
   loginWithGoogle as apiLoginWithGoogle,
   register as apiRegister,
+  getMe,
 } from './src/api/auth';
 import type { BackendUser } from './src/api/auth';
 import { getMenuItems } from './src/api/menu';
 import { createOrder } from './src/api/orders';
 import { getGateways, createPayment } from './src/api/payments';
-import { saveToken, clearToken, saveUser, getStoredUser } from './src/services/tokenStorage';
+import { saveToken, clearToken, saveUser, getToken } from './src/services/tokenStorage';
 
 // Adapter: convert backend MenuItem to frontend MenuItem
 import type { BackendMenuItem } from './src/api/menu';
@@ -113,6 +115,8 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [authPromptMessage, setAuthPromptMessage] = useState('');
+  const pendingAuthActionRef = useRef<(() => void) | null>(null);
 
   // ── Logged-in user (from backend) ─────────────────────────────────────────
   const [currentUser, setCurrentUser] = useState<LoggedInUser | null>(null);
@@ -126,6 +130,7 @@ export default function App() {
   // ── Cart state ────────────────────────────────────────────────────────────
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
 
   // ── Checkout state ────────────────────────────────────────────────────────
@@ -175,8 +180,17 @@ export default function App() {
 
   // ── Restore session on app start ──────────────────────────────────────────
   useEffect(() => {
-    getStoredUser<LoggedInUser>().then((user) => {
-      if (user) {
+    async function restoreSession() {
+      const token = await getToken();
+      if (!token) {
+        await clearToken();
+        return;
+      }
+
+      try {
+        const result = await getMe();
+        const user = adaptBackendUser(result.data);
+        await saveUser(user);
         setCurrentUser(user);
         setName(user.full_name);
         setEmail(user.email);
@@ -186,16 +200,35 @@ export default function App() {
           user.role === 'order_manager' ||
           user.role === 'super_admin';
         setFlow(adminRole ? 'admin' : 'home');
+      } catch {
+        await clearToken();
+        setCurrentUser(null);
       }
-    });
+    }
+
+    restoreSession();
   }, []);
 
   // ── Fetch menu whenever user lands on home screen ─────────────────────────
   useEffect(() => {
-    if (flow === 'home' || flow === 'admin') {
+    if (flow === 'home' || flow === 'admin' || flow === 'itemDetail') {
       fetchMenu();
     }
   }, [flow]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || menuItems.length === 0 || detailItem) return;
+    const search = globalThis.location?.search ?? '';
+    const params = new URLSearchParams(search);
+    const itemId = params.get('itemId') || params.get('menuItemId');
+    if (!itemId) return;
+
+    const qrItem = menuItems.find((item) => item.id === itemId);
+    if (qrItem) {
+      setDetailItem(qrItem);
+      setFlow('itemDetail');
+    }
+  }, [menuItems, detailItem]);
 
   async function fetchMenu() {
     setMenuLoading(true);
@@ -258,13 +291,36 @@ export default function App() {
   function completeAuth(user: LoggedInUser) {
     setCurrentUser(user);
     setName(user.full_name);
+    setEmail(user.email);
+    setAuthPromptMessage('');
 
     const adminRole =
       user.role === 'content_admin' ||
       user.role === 'order_manager' ||
       user.role === 'super_admin';
 
+    const pendingAction = pendingAuthActionRef.current;
+    if (pendingAction) {
+      pendingAuthActionRef.current = null;
+      pendingAction();
+      return;
+    }
+
     setFlow(adminRole ? 'admin' : 'home');
+  }
+
+  function requireAuth(actionAfterLogin: () => void) {
+    if (currentUser) {
+      actionAfterLogin();
+      return;
+    }
+
+    pendingAuthActionRef.current = actionAfterLogin;
+    setAuthError('');
+    setAuthPromptMessage('Please sign in or create an account to continue.');
+    setAuthTab('login');
+    setPassword('');
+    setFlow('auth');
   }
 
   async function handleGoogleAuth() {
@@ -328,6 +384,27 @@ export default function App() {
     });
   };
 
+  const addToCartAndStay = (item: MenuItem, extras?: Partial<CartItem>) => {
+    addToCart(item, extras);
+    setSelectedItem(null);
+  };
+
+  const openCustomizer = (item: MenuItem) => {
+    requireAuth(() => {
+      setDetailItem(item);
+      setFlow('itemDetail');
+      setSelectedItem(item);
+    });
+  };
+
+  const openCart = () => {
+    requireAuth(() => setFlow('cart'));
+  };
+
+  const openCheckout = () => {
+    requireAuth(() => setFlow('checkout'));
+  };
+
   const updateQuantity = (index: number, change: number) => {
     setCart((current) =>
       current
@@ -340,6 +417,11 @@ export default function App() {
 
   // ── Checkout / Order placement ────────────────────────────────────────────
   async function handlePlaceOrder() {
+    if (!currentUser) {
+      requireAuth(() => setFlow('checkout'));
+      return;
+    }
+
     if (!customerPhone.trim()) {
       Alert.alert('Phone Required', 'Please enter your phone number to place the order.');
       return;
@@ -394,6 +476,11 @@ export default function App() {
 
   // ── Card payment handler ──────────────────────────────────────────────────
   async function handleCardPay() {
+    if (!currentUser) {
+      requireAuth(() => setFlow('checkout'));
+      return;
+    }
+
     if (!lastOrderId) {
       setFlow('thanks');
       return;
@@ -417,10 +504,15 @@ export default function App() {
   // ── Sign out ──────────────────────────────────────────────────────────────
   function handleSignOut() {
     clearToken();
+    pendingAuthActionRef.current = null;
     setCurrentUser(null);
     setCart([]);
-    setMenuItems([]);
-    setFlow('auth');
+    setName('');
+    setEmail('');
+    setPassword('');
+    setAuthError('');
+    setAuthPromptMessage('');
+    setFlow('home');
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -436,7 +528,7 @@ export default function App() {
       <OnboardingScreen
         index={onboardingIndex}
         setIndex={setOnboardingIndex}
-        onDone={() => setFlow('auth')}
+        onDone={() => setFlow('home')}
       />
     );
   }
@@ -457,8 +549,15 @@ export default function App() {
         isAdmin={false}
         loading={authLoading}
         errorMessage={authError}
+        promptMessage={authPromptMessage}
         onContinue={handleAuth}
         onGoogleContinue={handleGoogleAuth}
+        onCancel={() => {
+          pendingAuthActionRef.current = null;
+          setAuthError('');
+          setAuthPromptMessage('');
+          setFlow(detailItem ? 'itemDetail' : 'home');
+        }}
         googleLoading={googleLoading}
         googleDisabled={!googleClientConfigured || !googleRequest || authLoading}
       />
@@ -488,8 +587,38 @@ export default function App() {
         total={total}
         updateQuantity={updateQuantity}
         onBack={() => setFlow('home')}
-        onCheckout={() => setFlow('checkout')}
+        onCheckout={openCheckout}
       />
+    );
+  }
+
+  if (flow === 'itemDetail' && detailItem) {
+    return (
+      <>
+        <ItemDetailScreen
+          item={detailItem}
+          onBack={() => setFlow('home')}
+          onAddToCart={(item) => {
+            requireAuth(() => {
+              addToCartAndStay(item, {
+                portion: 'Standard',
+                notes: '',
+                addons: [],
+              });
+              setFlow('itemDetail');
+            });
+          }}
+          onCustomize={openCustomizer}
+        />
+
+        <CustomizerModal
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+          onAdd={(item, extras) => {
+            requireAuth(() => addToCartAndStay(item, extras));
+          }}
+        />
+      </>
     );
   }
 
@@ -550,9 +679,22 @@ export default function App() {
         filteredMenu={filteredMenu}
         cart={cart}
         isAdmin={isAdmin}
-        onProfilePress={() => setFlow(isAdmin ? 'admin' : 'auth')}
-        onCartPress={() => setFlow('cart')}
-        onOpenCustomizer={setSelectedItem}
+        isGuest={!currentUser}
+        onProfilePress={() => {
+          setAuthPromptMessage('');
+          if (isAdmin) {
+            setFlow('admin');
+          } else if (!currentUser) {
+            setFlow('auth');
+          }
+        }}
+        onSignOut={handleSignOut}
+        onCartPress={openCart}
+        onOpenItemDetail={(item) => {
+          setDetailItem(item);
+          setFlow('itemDetail');
+        }}
+        onOpenCustomizer={openCustomizer}
         onOpenChat={() => setChatOpen(true)}
       />
 
@@ -560,8 +702,7 @@ export default function App() {
         item={selectedItem}
         onClose={() => setSelectedItem(null)}
         onAdd={(item, extras) => {
-          addToCart(item, extras);
-          setSelectedItem(null);
+          requireAuth(() => addToCartAndStay(item, extras));
         }}
       />
 

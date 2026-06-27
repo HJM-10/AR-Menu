@@ -5,6 +5,7 @@ export type Flow =
   | 'otp'
   | 'admin'
   | 'home'
+  | 'itemDetail'
   | 'cart'
   | 'checkout'
   | 'cardPayment'

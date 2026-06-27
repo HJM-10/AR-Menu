@@ -4,6 +4,9 @@ from typing import Any
 from jose import jwt
 import bcrypt
 
+from app.core.config import get_settings
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     try:
         return bcrypt.checkpw(

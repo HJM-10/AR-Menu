@@ -94,7 +94,7 @@ SELECT
   gen_random_uuid(),
   'admin@3dfv.pk',
   'Super Admin',
-  '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMUKEs3mMBEBFwqFEFRAUYqjIe',
+  '$2b$12$BJLNJdLFZv32Dp8Q1BeUeuFeT5Vd4jSPw3LSQbyunuV0cvom2/UYK',
   true,
   false,
   (SELECT id FROM roles WHERE name = 'super_admin' LIMIT 1)

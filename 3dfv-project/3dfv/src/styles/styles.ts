@@ -103,6 +103,22 @@ export const styles = StyleSheet.create({
 
   disabledBtn: { opacity: 0.5 },
 
+  secondaryBtn: {
+    backgroundColor: '#fff',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+
+  secondaryBtnText: {
+    color: '#35C989',
+    fontWeight: '800',
+    fontSize: 15,
+  },
+
   primaryBtnText: {
     color: '#fff',
     fontWeight: '800',
@@ -522,6 +538,29 @@ nextButtonText: {
     fontSize: 20,
   },
 
+  profileActions: {
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  signInPill: {
+    backgroundColor: '#35C989',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 16,
+  },
+
+  signInText: {
+    color: '#fff',
+    fontWeight: '900',
+  },
+
+  signOutText: {
+    color: '#A86B24',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -725,6 +764,74 @@ nextButtonText: {
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
+  },
+
+  detailHeroImage: {
+    width: '100%',
+    height: 260,
+    borderRadius: 22,
+    backgroundColor: '#eee',
+    marginTop: 14,
+  },
+
+  detailHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 14,
+    marginTop: 18,
+  },
+
+  detailPrice: {
+    color: '#35C989',
+    fontWeight: '900',
+    fontSize: 20,
+  },
+
+  detailMetaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 14,
+  },
+
+  detailMetaPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
+  },
+
+  detailMetaText: {
+    color: '#3A3640',
+    fontWeight: '800',
+    fontSize: 12,
+  },
+
+  detailBodyText: {
+    color: '#777',
+    lineHeight: 22,
+    marginTop: 8,
+  },
+
+  detailActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 6,
+  },
+
+  secondaryIconBtn: {
+    width: 54,
+    height: 54,
+    borderRadius: 18,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 18,
   },
 
   modalBackdrop: {
