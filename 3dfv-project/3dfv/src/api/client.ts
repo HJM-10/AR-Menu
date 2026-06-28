@@ -17,7 +17,7 @@ import { getToken } from '../services/tokenStorage';
 // Resolve base URL: expo config extra → fallback to localhost
 const API_BASE_URL: string =
   (Constants.expoConfig?.extra?.apiBaseUrl as string | undefined) ||
-  'http://localhost:8000';
+  'http://127.0.0.1:8001';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
