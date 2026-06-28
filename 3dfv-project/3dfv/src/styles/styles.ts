@@ -703,16 +703,19 @@ nextButtonText: {
   cartBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 14,
+    gap: 8,
+    backgroundColor: '#E7F8EF',
+    paddingHorizontal: 17,
+    paddingVertical: 11,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#35C989',
   },
 
   cartText: {
     color: '#35C989',
     fontWeight: '900',
+    fontSize: 16,
   },
 
   foodCard: {
@@ -1072,6 +1075,13 @@ nextButtonText: {
   portionText: {
     color: '#777',
     fontWeight: '800',
+  },
+
+  portionPriceText: {
+    color: '#999',
+    fontSize: 11,
+    fontWeight: '800',
+    marginTop: 3,
   },
 
   portionTextActive: { color: '#fff' },

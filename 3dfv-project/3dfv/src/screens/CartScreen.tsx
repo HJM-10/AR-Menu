@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
   Image,
   Pressable,
@@ -12,6 +12,7 @@ import Header from '../components/Header';
 import PriceRow from '../components/PriceRow';
 import { CartItem } from '../types';
 import { formatRs } from '../utils/format';
+import { getCartLinePrice } from '../utils/pricing';
 import { styles } from '../styles/styles';
 
 export default function CartScreen({
@@ -59,7 +60,7 @@ export default function CartScreen({
                 <Text style={styles.foodName}>{line.item.name}</Text>
 
                 <Text style={styles.mutedText}>
-                  {line.portion} • {formatRs(line.item.price)}
+                  {line.portion} - {formatRs(getCartLinePrice(line))}
                 </Text>
 
                 {!!line.addons.length && (

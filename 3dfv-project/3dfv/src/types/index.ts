@@ -54,6 +54,7 @@ export type CartItem = {
   notes: string;
   portion: string;
   addons: string[];
+  unitPrice: number;
 };
 
 /** Logged-in user info derived from backend /auth/me response */

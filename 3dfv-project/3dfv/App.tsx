@@ -48,6 +48,7 @@ import { getMenuItems } from './src/api/menu';
 import { createOrder } from './src/api/orders';
 import { getGateways, createPayment } from './src/api/payments';
 import { saveToken, clearToken, saveUser, getToken } from './src/services/tokenStorage';
+import { getCartLinePrice, getDefaultPortion, getPortionPrice } from './src/utils/pricing';
 
 // Adapter: convert backend MenuItem to frontend MenuItem
 import type { BackendMenuItem } from './src/api/menu';
@@ -199,7 +200,7 @@ export default function App() {
     });
   }, [category, query, menuItems]);
 
-  const subtotal = cart.reduce((total, line) => total + line.item.price * line.quantity, 0);
+  const subtotal = cart.reduce((sum, line) => sum + getCartLinePrice(line) * line.quantity, 0);
   const tax = Math.round(subtotal * 0.16);
   const total = subtotal + tax;
 
@@ -389,11 +390,15 @@ export default function App() {
   }
 
   const addToCart = (item: MenuItem, extras?: Partial<CartItem>) => {
+    const portion = extras?.portion || getDefaultPortion(item);
+    const unitPrice = extras?.unitPrice ?? getPortionPrice(item, portion);
+
     setCart((current) => {
       const found = current.find(
         (line) =>
           line.item.id === item.id &&
-          line.portion === (extras?.portion || 'Standard')
+          line.portion === portion &&
+          line.unitPrice === unitPrice
       );
       if (found) {
         return current.map((line) =>
@@ -406,8 +411,9 @@ export default function App() {
           item,
           quantity: 1,
           notes: extras?.notes || '',
-          portion: extras?.portion || 'Standard',
+          portion,
           addons: extras?.addons || [],
+          unitPrice,
         },
       ];
     });
@@ -470,7 +476,10 @@ export default function App() {
         items: cart.map((line) => ({
           menu_item_id: line.item.id,
           quantity: line.quantity,
-          notes: line.notes || undefined,
+          custom_unit_price: getCartLinePrice(line),
+          notes: [line.portion, line.addons.length ? `Addons: ${line.addons.join(', ')}` : '', line.notes]
+            .filter(Boolean)
+            .join(' | ') || undefined,
         })),
       };
 
@@ -636,9 +645,10 @@ export default function App() {
           onAddToCart={(item) => {
             requireAuth(() => {
               addToCartAndStay(item, {
-                portion: 'Standard',
+                portion: getDefaultPortion(item),
                 notes: '',
                 addons: [],
+                unitPrice: getPortionPrice(item, getDefaultPortion(item)),
               });
               setFlow('itemDetail');
             });

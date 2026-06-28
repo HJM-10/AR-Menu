@@ -76,7 +76,7 @@ def _build_order_item(db: Session, payload: OrderItemCreate) -> OrderItem:
     _validate_one_target(payload.menu_item_id, payload.deal_id)
     if payload.menu_item_id:
         item = _available_menu_item(db, payload.menu_item_id)
-        unit_price = item.price
+        unit_price = money(payload.custom_unit_price) if payload.custom_unit_price is not None else item.price
         _deduct_inventory_for_menu_item(
             db, menu_item_id=payload.menu_item_id, quantity=payload.quantity
         )

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CartItem, MenuItem } from '../types';
 import { formatRs } from '../utils/format';
+import { getDefaultPortion, getPortionOptions, getPortionPrice, isPizzaItem } from '../utils/pricing';
 import { styles } from '../styles/styles';
 
 export default function CustomizerModal({
@@ -14,13 +15,23 @@ export default function CustomizerModal({
   onClose: () => void;
   onAdd: (item: MenuItem, extras: Partial<CartItem>) => void;
 }) {
-  const [portion, setPortion] = useState<CartItem['portion']>('Standard');
+  const [portion, setPortion] = useState<CartItem['portion']>('');
   const [notes, setNotes] = useState('');
   const [truffle, setTruffle] = useState(false);
   const [cheese, setCheese] = useState(false);
 
+  useEffect(() => {
+    if (item) {
+      setPortion(getDefaultPortion(item));
+    }
+  }, [item?.id]);
+
   if (!item) return null;
 
+  const selectedPortion = portion || getDefaultPortion(item);
+  const portionOptions = getPortionOptions(item);
+  const portionLabel = isPizzaItem(item) ? 'Pizza Size' : 'Portion';
+  const unitPrice = getPortionPrice(item, selectedPortion);
   const addons = [truffle ? 'Shaved black truffles' : '', cheese ? 'Extra cheese' : ''].filter(Boolean);
 
   return (
@@ -33,12 +44,23 @@ export default function CustomizerModal({
             <Pressable onPress={onClose}><Ionicons name="close" size={26} color="#333" /></Pressable>
           </View>
           <Text style={styles.foodName}>{item.name}</Text>
-          <Text style={styles.mutedText}>{formatRs(item.price)}</Text>
-          <Text style={styles.sectionTitle}>Portion</Text>
+          <Text style={styles.mutedText}>
+            {selectedPortion} price: {formatRs(unitPrice)}
+          </Text>
+          <Text style={styles.sectionTitle}>{portionLabel}</Text>
           <View style={styles.portionRow}>
-            {(['Petite', 'Standard', 'Grand'] as CartItem['portion'][]).map((p) => (
-              <Pressable key={p} style={[styles.portionBtn, portion === p && styles.portionActive]} onPress={() => setPortion(p)}>
-                <Text style={[styles.portionText, portion === p && styles.portionTextActive]}>{p}</Text>
+            {portionOptions.map((option) => (
+              <Pressable
+                key={option.label}
+                style={[styles.portionBtn, selectedPortion === option.label && styles.portionActive]}
+                onPress={() => setPortion(option.label)}
+              >
+                <Text style={[styles.portionText, selectedPortion === option.label && styles.portionTextActive]}>
+                  {option.label}
+                </Text>
+                <Text style={[styles.portionPriceText, selectedPortion === option.label && styles.portionTextActive]}>
+                  {formatRs(option.price)}
+                </Text>
               </Pressable>
             ))}
           </View>
@@ -51,7 +73,10 @@ export default function CustomizerModal({
             <Text style={styles.locationText}>Extra cheese + Rs. 250</Text>
           </Pressable>
           <TextInput value={notes} onChangeText={setNotes} placeholder="Special notes" style={styles.input} />
-          <Pressable style={styles.primaryBtn} onPress={() => onAdd(item, { portion, notes, addons })}>
+          <Pressable
+            style={styles.primaryBtn}
+            onPress={() => onAdd(item, { portion: selectedPortion, notes, addons, unitPrice })}
+          >
             <Text style={styles.primaryBtnText}>Add to Cart</Text>
           </Pressable>
         </View>

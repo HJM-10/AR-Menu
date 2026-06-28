@@ -11,6 +11,7 @@ class OrderItemCreate(BaseModel):
     menu_item_id: uuid.UUID | None = None
     deal_id: uuid.UUID | None = None
     quantity: int = Field(gt=0)
+    custom_unit_price: Decimal | None = Field(default=None, gt=0)
     notes: str | None = None
 
 

@@ -23,6 +23,7 @@ export interface OrderItemPayload {
   menu_item_id?: string;   // UUID — exactly one of menu_item_id or deal_id
   deal_id?: string;
   quantity: number;
+  custom_unit_price?: number;
   notes?: string;
 }
 
